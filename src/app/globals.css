@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-fraunces);
+  --font-mono: var(--font-geist-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Custom Financial Theme Colors */
+  --color-profit: var(--profit);
+  --color-loss: var(--loss);
+  --color-warn: var(--warn);
+}
+
+:root {
+  /* Vibrant Blue Editorial Theme */
+  --background: #F8FAFC; /* Very light cool gray/blue tint */
+  --foreground: #0F172A; /* Deep blue-black for text */
+
+  --card: rgba(255, 255, 255, 0.8);
+  --card-foreground: #0F172A;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+
+  /* Vibrant Royal Blue */
+  --primary: #2563EB; 
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #F1F5F9; /* Cool gray/slate */
+  --secondary-foreground: #0F172A;
+
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B; /* Slate 500 */
+
+  --accent: #2563EB;
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #FEF2F2;
+
+  --border: rgba(148, 163, 184, 0.2); /* Slate-ish border */
+  --input: rgba(148, 163, 184, 0.2);
+  --ring: rgba(37, 99, 235, 0.4);
+
+  --radius: 0rem;
+
+  /* High contrast indicators */
+  --profit: #16A34A; /* Green 600 */
+  --loss: #DC2626;   /* Red 600 */
+  --warn: #D97706;   /* Amber 600 */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* Subtle grid texture */
+    background-image: 
+      linear-gradient(to bottom, rgba(37, 99, 235, 0.03) 1px, transparent 1px),
+      linear-gradient(to right, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-card backdrop-blur-md border border-border shadow-sm;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom Scrollbar for Panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(37, 99, 235, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(37, 99, 235, 0.3);
+}
