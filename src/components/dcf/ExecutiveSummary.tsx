@@ -1,10 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils/formatters';
-import { TrendingUp, DollarSign, Activity, ArrowRight } from 'lucide-react';
+import { TrendingUp, Activity } from 'lucide-react';
 
 interface Props {
   fairValue: number;

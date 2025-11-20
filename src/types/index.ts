@@ -1,5 +1,13 @@
+export interface Component {
+  name: string;
+  revenue: number;
+  growthRate: number;
+  description?: string;
+}
+
 export interface Segment {
-  name: 'Productivity' | 'Intelligent Cloud' | 'Personal Computing';
+  id: string;
+  name: string;
   fy2025Revenue: number;
   fy2024Revenue: number;
   growthRate: number;
@@ -8,20 +16,12 @@ export interface Segment {
   components: Component[];
   growthDrivers: string[];
   challenges: string[];
-}
-
-export interface Component {
-  name: string;
-  revenue: number;
-  growthRate: number;
-  description?: string; // Made optional as it wasn't in the data sample but was in the interface definition
+  color?: string;
 }
 
 export interface YearProjection {
   year: number;
-  productivity: number;
-  intelligentCloud: number;
-  personalComputing: number;
+  segmentRevenue: Record<string, number>;
   totalRevenue: number;
   fcfMargin: number;
   fcf: number;
@@ -43,18 +43,21 @@ export interface DCFModel {
   fairValuePerShare: number;
 }
 
-export interface ScenarioAssumptions {
-  azureAIGrowth: number;
-  copilotPenetration: number;
-  cloudMarginPeak: number;
-  terminalGrowth: number;
+export interface ScenarioMetric {
+  label: string;
+  value: string;
+}
+
+export interface ScenarioCase {
   fairValue: number;
+  metrics: ScenarioMetric[];
+  narrative?: string;
 }
 
 export interface Scenarios {
-  bull: ScenarioAssumptions;
-  base: ScenarioAssumptions;
-  bear: ScenarioAssumptions;
+  bull: ScenarioCase;
+  base: ScenarioCase;
+  bear: ScenarioCase;
 }
 
 export interface MarketData {
@@ -65,13 +68,51 @@ export interface MarketData {
 }
 
 export interface Recommendation {
-  rating: 'BUY' | 'HOLD' | 'SELL';
+  rating: 'BUY' | 'HOLD' | 'SELL' | 'OUTPERFORM';
   targetPrice: number;
   upside: number;
-  suggestedEntry: [number, number]; // range
+  suggestedEntry: [number, number];
   catalysts: {
     positive: string[];
     negative: string[];
   };
 }
 
+export interface TranscriptMetric {
+  label: string;
+  value: string;
+}
+
+export interface TranscriptTimeSeriesPoint {
+  period: string;
+  value: string;
+}
+
+export interface TranscriptInsight {
+  segmentId: string;
+  component: string;
+  summary: string;
+  metrics: TranscriptMetric[];
+  timeSeries?: TranscriptTimeSeriesPoint[];
+  source?: string;
+}
+
+export interface CompanyTheme {
+  iconLetter: string;
+  primaryColor: string;
+  accentColor: string;
+  segmentColors?: Record<string, string>;
+}
+
+export interface CompanyModel {
+  symbol: string;
+  name: string;
+  description?: string;
+  segments: Segment[];
+  baseCaseDCF: DCFModel;
+  marketData: MarketData;
+  recommendation: Recommendation;
+  transcriptInsights: TranscriptInsight[];
+  theme: CompanyTheme;
+  scenarios?: Scenarios;
+}

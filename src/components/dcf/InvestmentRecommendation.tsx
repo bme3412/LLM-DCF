@@ -24,6 +24,11 @@ const ratingPalette: Record<
     text: "text-profit",
     label: "BUY",
   },
+  OUTPERFORM: {
+    bg: "bg-emerald-100 border-emerald-200 text-emerald-700",
+    text: "text-emerald-700",
+    label: "OUTPERFORM",
+  },
   HOLD: {
     bg: "bg-blue-100 border-blue-200 text-blue-600",
     text: "text-blue-600",

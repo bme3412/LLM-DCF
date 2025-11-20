@@ -1,30 +1,8 @@
-export type SegmentName =
-  | "Productivity"
-  | "Intelligent Cloud"
-  | "Personal Computing";
+import { TranscriptInsight } from "@/types";
 
-export interface TranscriptMetric {
-  label: string;
-  value: string;
-}
-
-export interface TranscriptTimeSeriesPoint {
-  period: string;
-  value: string;
-}
-
-export interface TranscriptComponentInsight {
-  segment: SegmentName;
-  component: string;
-  summary: string;
-  metrics: TranscriptMetric[];
-  timeSeries?: TranscriptTimeSeriesPoint[];
-  source: string;
-}
-
-export const transcriptInsights: TranscriptComponentInsight[] = [
+export const transcriptInsights: TranscriptInsight[] = [
   {
-    segment: "Productivity",
+    segmentId: "productivity",
     component: "Office Commercial",
     summary:
       "Microsoft 365 commercial cloud revenue grew 17% YoY, with Copilot and E5 mix driving ARPU while paid seats expanded 6%.",
@@ -40,7 +18,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Productivity",
+    segmentId: "productivity",
     component: "Office Consumer",
     summary:
       "Consumer cloud revenue jumped 26% with premium tiers lifting ARPU; subscriptions rose 7% past 90M households.",
@@ -55,7 +33,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Productivity",
+    segmentId: "productivity",
     component: "LinkedIn",
     summary:
       "LinkedIn revenue grew 10% YoY, fueled by marketing solutions while Talent Solutions softened alongside the hiring market.",
@@ -70,7 +48,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Productivity",
+    segmentId: "productivity",
     component: "Dynamics 365",
     summary:
       "Dynamics 365 maintained high-teens momentum with broad-based demand across workloads and Fabric-driven analytics pull-through.",
@@ -82,7 +60,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Intelligent Cloud",
+    segmentId: "intelligent-cloud",
     component: "Azure & Cloud Services",
     summary:
       "Azure and other cloud services revenue surged 40% YoY; AI demand continues to outstrip supply even as capacity ramps globally.",
@@ -98,7 +76,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Intelligent Cloud",
+    segmentId: "intelligent-cloud",
     component: "Server Products",
     summary:
       "On-premises server revenue inched up 1% YoY, helped by Windows Server 2025 transactional purchasing even as customers migrate to Azure.",
@@ -110,7 +88,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Intelligent Cloud",
+    segmentId: "intelligent-cloud",
     component: "GitHub",
     summary:
       "GitHub Copilot now serves 26M developers; 80% of new GitHub users start with Copilot within a week, driving record pull-request volume.",
@@ -129,7 +107,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Intelligent Cloud",
+    segmentId: "intelligent-cloud",
     component: "Nuance",
     summary:
       "Dragon Ambient Copilot documented 17M patient encounters in the quarter, up nearly 5x YoY as 650+ providers deploy the solution.",
@@ -144,7 +122,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Intelligent Cloud",
+    segmentId: "intelligent-cloud",
     component: "Enterprise Services",
     summary:
       "Azure AI Foundry now counts 80,000+ customers (80% of Fortune 500) building bespoke agents, underscoring services pull-through.",
@@ -155,7 +133,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Personal Computing",
+    segmentId: "personal-computing",
     component: "Windows OEM",
     summary:
       "Windows OEM and devices revenue climbed 6% YoY ahead of Windows 10 end-of-support and elevated inventory drawdown.",
@@ -167,7 +145,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Personal Computing",
+    segmentId: "personal-computing",
     component: "Windows Commercial",
     summary:
       "Microsoft highlighted Windows 11 AI PCs and new Copilot experiences (Vision, Action, wake word) as catalysts for commercial refresh.",
@@ -178,7 +156,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Personal Computing",
+    segmentId: "personal-computing",
     component: "Search & News Ads",
     summary:
       "Search and news advertising ex-TAC grew 16% YoY, driven by higher volume and improved monetization via Edge/Bing AI integration.",
@@ -189,7 +167,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Personal Computing",
+    segmentId: "personal-computing",
     component: "Gaming",
     summary:
       "Gaming revenue dipped 2%, but Minecraft hit 155M MAU and Xbox content/services eked out 1% growth amid strong third-party content.",
@@ -204,7 +182,7 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
   {
-    segment: "Personal Computing",
+    segmentId: "personal-computing",
     component: "Devices",
     summary:
       "Hardware revenue is expected to decline YoY, but Microsoft emphasized the rollout of Copilot-enabled AI PCs and Xbox Ally momentum.",
@@ -215,5 +193,3 @@ export const transcriptInsights: TranscriptComponentInsight[] = [
     source: "MSFT FY26 Q1 earnings call",
   },
 ];
-
-

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Segment } from "@/types";
+import { Segment, TranscriptInsight } from "@/types";
 import { formatCurrency } from "@/lib/utils/formatters";
 import {
   Minus,
@@ -13,13 +13,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { cn } from "@/lib/utils";
-import { transcriptInsights } from "@/lib/data/transcripts/msft-transcript-data";
 import { Slider } from "@/components/ui/slider";
+import { makeComponentKey } from "@/lib/utils/company";
 
 interface Props {
   segments: Segment[];
-  componentRates: { [key: string]: number };
-  onRateChange: (componentName: string, newRate: number) => void;
+  componentRates: Record<string, number>;
+  onRateChange: (componentKey: string, newRate: number) => void;
+  insights?: TranscriptInsight[];
   className?: string;
 }
 
@@ -27,44 +28,53 @@ export function SegmentBreakdown({
   segments,
   componentRates,
   onRateChange,
+  insights,
   className,
 }: Props) {
-  const [open, setOpen] = useState(() =>
-    Object.fromEntries(segments.map((s, idx) => [s.name, idx === 0]))
+  const [open, setOpen] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(segments.map((segment, idx) => [segment.id, idx === 0]))
   );
 
-  const handleAdjust = (name: string, currentRate: number, delta: number) => {
+  useEffect(() => {
+    setOpen(Object.fromEntries(segments.map((segment, idx) => [segment.id, idx === 0])));
+  }, [segments]);
+
+  const handleAdjust = (componentKey: string, currentRate: number, delta: number) => {
     const newRate = Math.round((currentRate + delta) * 1000) / 1000;
-    onRateChange(name, newRate);
+    onRateChange(componentKey, newRate);
   };
 
   const applySegmentDelta = (segment: Segment, delta: number) => {
     segment.components.forEach((comp) => {
-      const currentRate = componentRates[comp.name] ?? comp.growthRate;
-      handleAdjust(comp.name, currentRate, delta);
+      const key = makeComponentKey(segment.id, comp.name);
+      const currentRate = componentRates[key] ?? comp.growthRate;
+      handleAdjust(key, currentRate, delta);
     });
   };
 
   const resetSegment = (segment: Segment) => {
-    segment.components.forEach((comp) => onRateChange(comp.name, comp.growthRate));
+    segment.components.forEach((comp) =>
+      onRateChange(makeComponentKey(segment.id, comp.name), comp.growthRate)
+    );
   };
 
   return (
-    <div className={cn("grid gap-4", className || "grid-cols-1 lg:grid-cols-3")}>
+    <div className={cn("grid gap-4", className || "grid-cols-1 lg:grid-cols-3")}> 
       {segments.map((segment) => {
         const currentRev = segment.components.reduce((sum, c) => sum + c.revenue, 0);
         const projectedRev = segment.components.reduce((sum, c) => {
-          const rate = componentRates[c.name] ?? c.growthRate;
+          const key = makeComponentKey(segment.id, c.name);
+          const rate = componentRates[key] ?? c.growthRate;
           return sum + c.revenue * (1 + rate);
         }, 0);
-        const impliedGrowth = (projectedRev - currentRev) / currentRev;
-        const segmentInsightBlocks = transcriptInsights.filter(
-          (insight) => insight.segment === segment.name
-        );
+        const impliedGrowth = currentRev > 0 ? (projectedRev - currentRev) / currentRev : 0;
+        const segmentInsightBlocks = insights?.filter(
+          (insight) => insight.segmentId === segment.id
+        ) ?? [];
 
         return (
           <div
-            key={segment.name}
+            key={segment.id}
             className="glass-panel p-4 flex flex-col relative overflow-hidden group"
           >
             {/* Decorative background */}
@@ -76,11 +86,11 @@ export function SegmentBreakdown({
               <div className="flex items-center justify-between gap-2">
                 <button
                   onClick={() =>
-                    setOpen((prev) => ({ ...prev, [segment.name]: !prev[segment.name] }))
+                    setOpen((prev) => ({ ...prev, [segment.id]: !prev[segment.id] }))
                   }
                   className="flex items-center gap-2 text-left flex-1"
                 >
-                  {open[segment.name] ? (
+                  {open[segment.id] ? (
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   ) : (
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -150,21 +160,22 @@ export function SegmentBreakdown({
               </div>
             </div>
 
-            {open[segment.name] && (
+            {open[segment.id] && (
               <div className="relative z-10 mt-4 space-y-5">
                 <div className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground font-semibold">
                   Components
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {segment.components.map((comp) => {
-                    const rate = componentRates[comp.name] ?? comp.growthRate;
+                    const compKey = makeComponentKey(segment.id, comp.name);
+                    const rate = componentRates[compKey] ?? comp.growthRate;
                     const componentInsight = segmentInsightBlocks.find(
                       (insight) => insight.component === comp.name
                     );
 
                     return (
                       <div
-                        key={comp.name}
+                        key={compKey}
                         className="rounded-xl border border-border/80 bg-white/80 p-4 shadow-sm transition hover:shadow-md"
                       >
                         <div className="flex items-start justify-between text-xs text-muted-foreground mb-2">
@@ -179,9 +190,9 @@ export function SegmentBreakdown({
                             <p className="text-[10px] uppercase tracking-[0.3em]">
                               {rate === comp.growthRate
                                 ? "Base"
-                                : `${rate > comp.growthRate ? "+" : ""}${((rate - comp.growthRate) * 100).toFixed(
-                                    1
-                                  )} pts`}
+                                : `${rate > comp.growthRate ? "+" : ""}${(
+                                    (rate - comp.growthRate) * 100
+                                  ).toFixed(1)} pts`}
                             </p>
                           </div>
                         </div>
@@ -191,7 +202,7 @@ export function SegmentBreakdown({
                           min={-5}
                           max={50}
                           step={0.5}
-                          onValueChange={(vals) => onRateChange(comp.name, vals[0] / 100)}
+                          onValueChange={(vals) => onRateChange(compKey, vals[0] / 100)}
                           className="my-3"
                         />
 
@@ -200,7 +211,7 @@ export function SegmentBreakdown({
                             variant="outline"
                             size="sm"
                             className="h-7 px-2 text-xs"
-                            onClick={() => handleAdjust(comp.name, rate, -0.01)}
+                            onClick={() => handleAdjust(compKey, rate, -0.01)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -208,7 +219,7 @@ export function SegmentBreakdown({
                             variant="outline"
                             size="sm"
                             className="h-7 px-2 text-xs"
-                            onClick={() => handleAdjust(comp.name, rate, 0.01)}
+                            onClick={() => handleAdjust(compKey, rate, 0.01)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -216,7 +227,7 @@ export function SegmentBreakdown({
                             variant="ghost"
                             size="sm"
                             className="h-7 px-2 text-xs text-muted-foreground"
-                            onClick={() => onRateChange(comp.name, comp.growthRate)}
+                            onClick={() => onRateChange(compKey, comp.growthRate)}
                           >
                             Reset
                           </Button>
@@ -248,7 +259,6 @@ export function SegmentBreakdown({
           </div>
         );
       })}
-
     </div>
   );
 }

@@ -1,0 +1,336 @@
+import { CompanyModel, YearProjection } from "@/types";
+import { transcriptInsights as amdTranscriptInsights } from "@/lib/data/transcripts/amd-transcript-data";
+
+const projections: YearProjection[] = [
+  {
+    year: 2025,
+    segmentRevenue: {
+      "data-center": 18.0,
+      client: 11.0,
+      gaming: 6.0,
+      embedded: 3.2,
+    },
+    totalRevenue: 38.2,
+    fcfMargin: 0.23,
+    fcf: 8.79,
+    discountFactor: 0.918,
+    presentValue: 8.07,
+  },
+  {
+    year: 2026,
+    segmentRevenue: {
+      "data-center": 20.5,
+      client: 11.8,
+      gaming: 6.4,
+      embedded: 3.1,
+    },
+    totalRevenue: 41.8,
+    fcfMargin: 0.235,
+    fcf: 9.82,
+    discountFactor: 0.843,
+    presentValue: 8.28,
+  },
+  {
+    year: 2027,
+    segmentRevenue: {
+      "data-center": 23.0,
+      client: 12.7,
+      gaming: 6.8,
+      embedded: 3.0,
+    },
+    totalRevenue: 45.5,
+    fcfMargin: 0.24,
+    fcf: 10.92,
+    discountFactor: 0.775,
+    presentValue: 8.47,
+  },
+  {
+    year: 2028,
+    segmentRevenue: {
+      "data-center": 25.5,
+      client: 13.6,
+      gaming: 7.1,
+      embedded: 3.0,
+    },
+    totalRevenue: 49.2,
+    fcfMargin: 0.245,
+    fcf: 12.05,
+    discountFactor: 0.712,
+    presentValue: 8.58,
+  },
+  {
+    year: 2029,
+    segmentRevenue: {
+      "data-center": 28.0,
+      client: 14.5,
+      gaming: 7.5,
+      embedded: 3.1,
+    },
+    totalRevenue: 53.1,
+    fcfMargin: 0.25,
+    fcf: 13.28,
+    discountFactor: 0.654,
+    presentValue: 8.68,
+  },
+  {
+    year: 2030,
+    segmentRevenue: {
+      "data-center": 30.5,
+      client: 15.5,
+      gaming: 7.9,
+      embedded: 3.2,
+    },
+    totalRevenue: 57.1,
+    fcfMargin: 0.255,
+    fcf: 14.56,
+    discountFactor: 0.601,
+    presentValue: 8.75,
+  },
+  {
+    year: 2031,
+    segmentRevenue: {
+      "data-center": 33.0,
+      client: 16.5,
+      gaming: 8.3,
+      embedded: 3.3,
+    },
+    totalRevenue: 61.1,
+    fcfMargin: 0.26,
+    fcf: 15.89,
+    discountFactor: 0.552,
+    presentValue: 8.77,
+  },
+  {
+    year: 2032,
+    segmentRevenue: {
+      "data-center": 35.5,
+      client: 17.6,
+      gaming: 8.7,
+      embedded: 3.4,
+    },
+    totalRevenue: 65.2,
+    fcfMargin: 0.265,
+    fcf: 17.28,
+    discountFactor: 0.507,
+    presentValue: 8.76,
+  },
+  {
+    year: 2033,
+    segmentRevenue: {
+      "data-center": 38.0,
+      client: 18.7,
+      gaming: 9.1,
+      embedded: 3.5,
+    },
+    totalRevenue: 69.3,
+    fcfMargin: 0.27,
+    fcf: 18.71,
+    discountFactor: 0.466,
+    presentValue: 8.72,
+  },
+  {
+    year: 2034,
+    segmentRevenue: {
+      "data-center": 40.5,
+      client: 19.9,
+      gaming: 9.5,
+      embedded: 3.6,
+    },
+    totalRevenue: 73.5,
+    fcfMargin: 0.275,
+    fcf: 20.21,
+    discountFactor: 0.428,
+    presentValue: 8.65,
+  },
+];
+
+export const amdCompany: CompanyModel = {
+  symbol: "AMD",
+  name: "Advanced Micro Devices, Inc.",
+  description:
+    "Record Q3 FY25 revenue of $9.2B (+36% YoY) with Data Center $4.3B, Client $2.8B, Gaming $1.3B, and Embedded $857M as EPYC, Instinct, and Ryzen AI demand accelerates.",
+  segments: [
+    {
+      id: "data-center",
+      name: "Data Center",
+      fy2025Revenue: 18,
+      fy2024Revenue: 14.7,
+      growthRate: 0.22,
+      operatingMargin: 0.25,
+      percentOfTotal: 47,
+      components: [
+        { name: "EPYC Turin/Genoa CPUs", revenue: 10, growthRate: 0.22 },
+        { name: "Instinct MI350 accelerators", revenue: 6, growthRate: 0.4 },
+        { name: "Pensando DPUs & adaptive", revenue: 2, growthRate: 0.18 },
+      ],
+      growthDrivers: [
+        "Q3 FY25 data center revenue $4.3B (+22% YoY) on EPYC share gains",
+        "MI350/MI355 GPU ramps ahead of MI400 Helios deployments",
+        "OpenAI 6 GW partnership plus OCI and DOE supercomputer wins",
+      ],
+      challenges: [
+        "NVIDIA CUDA ecosystem lock-in",
+        "Advanced packaging and foundry supply constraints",
+        "Power and infrastructure bottlenecks for rack-scale AI",
+      ],
+      color: "#C53C2E",
+    },
+    {
+      id: "client",
+      name: "Client Computing",
+      fy2025Revenue: 11,
+      fy2024Revenue: 7.8,
+      growthRate: 0.41,
+      operatingMargin: 0.2,
+      percentOfTotal: 29,
+      components: [
+        { name: "Ryzen AI notebooks", revenue: 6, growthRate: 0.32 },
+        { name: "Desktop Ryzen 9000", revenue: 3, growthRate: 0.18 },
+        { name: "Commercial/Pro PCs", revenue: 2, growthRate: 0.2 },
+      ],
+      growthDrivers: [
+        "Client revenue $2.8B (+46% YoY) on AI PC demand",
+        "All top 5 OEMs shipping Ryzen AI designs",
+        "Enterprise sell-through +30% YoY with Copilot+ pilots",
+      ],
+      challenges: [
+        "PC macro cyclicality",
+        "Pricing pressure from Intel Meteor Lake / Lunar Lake",
+        "Channel inventory balancing",
+      ],
+      color: "#DD6B20",
+    },
+    {
+      id: "gaming",
+      name: "Gaming",
+      fy2025Revenue: 5.2,
+      fy2024Revenue: 2.9,
+      growthRate: 0.79,
+      operatingMargin: 0.21,
+      percentOfTotal: 14,
+      components: [
+        { name: "Console semi-custom", revenue: 3.5, growthRate: 0.15 },
+        { name: "Radeon GPUs", revenue: 1.7, growthRate: 0.12 },
+      ],
+      growthDrivers: [
+        "Gaming revenue $1.3B (+181% YoY) on console refresh shipments",
+        "FSR4 adoption doubled to 85+ titles",
+        "Radeon 9000 family performance-per-dollar leadership",
+      ],
+      challenges: [
+        "Console cycle timing into FY26",
+        "High-end GPU competition",
+        "Consumer discretionary demand",
+      ],
+      color: "#9333EA",
+    },
+    {
+      id: "embedded",
+      name: "Embedded",
+      fy2025Revenue: 3.4,
+      fy2024Revenue: 3.7,
+      growthRate: -0.08,
+      operatingMargin: 0.33,
+      percentOfTotal: 10,
+      components: [
+        { name: "Versal adaptive SoCs", revenue: 2.0, growthRate: -0.05 },
+        { name: "Industrial/Auto embedded", revenue: 1.4, growthRate: -0.12 },
+      ],
+      growthDrivers: [
+        "Sequential revenue +4% as carrier digestion moderates",
+        "Versal Prime Gen2 and Ryzen Embedded 9000 launches",
+      ],
+      challenges: [
+        "Inventory burn in communications and industrial",
+        "Long design-to-revenue cycles",
+      ],
+      color: "#2563EB",
+    },
+  ],
+  baseCaseDCF: {
+    projections,
+    wacc: 0.089,
+    terminalGrowth: 0.024,
+    terminalValue: 318,
+    pvTerminalValue: 136,
+    enterpriseValue: 222.0,
+    cash: 10.8,
+    debt: 4.2,
+    equityValue: 228.6,
+    sharesOutstanding: 1.65,
+    fairValuePerShare: 138.6,
+  },
+  marketData: {
+    currentPrice: 210,
+    marketCap: 346.5,
+    sharesOutstanding: 1.65,
+    dateUpdated: "2025-11-20",
+  },
+  recommendation: {
+    rating: "HOLD",
+    targetPrice: 190,
+    upside: -0.1,
+    suggestedEntry: [170, 190],
+    catalysts: {
+      positive: [
+        "MI355/MI400 accelerator deployments broaden to OpenAI, OCI, DOE",
+        "Ryzen AI PC refresh sustaining double-digit mix",
+        "Embedded demand stabilizing into FY26",
+      ],
+      negative: [
+        "Competitive GPU pricing and CUDA software moat",
+        "Power/packaging supply limits delaying MI400 ramps",
+        "Macro/PC slowdown after AI PC launch cycle",
+      ],
+    },
+  },
+  scenarios: {
+    bull: {
+      fairValue: 210,
+      metrics: [
+        { label: "Data center CAGR", value: "26%" },
+        { label: "Gross margin", value: "55%" },
+        { label: "AI PC mix", value: "35%" },
+        { label: "Terminal growth", value: "2.8%" },
+      ],
+      narrative:
+        "Accelerator share gains compound with AI PC adoption while embedded exits digestion faster, supporting margin expansion.",
+    },
+    base: {
+      fairValue: 139,
+      metrics: [
+        { label: "Data center CAGR", value: "18%" },
+        { label: "FCF margin", value: "25%" },
+        { label: "Gross margin", value: "54%" },
+        { label: "Terminal growth", value: "2.4%" },
+      ],
+      narrative:
+        "Steady EPYC and Ryzen AI growth offset by gradual embedded recovery keeps fair value near current trading levels.",
+    },
+    bear: {
+      fairValue: 110,
+      metrics: [
+        { label: "Data center CAGR", value: "10%" },
+        { label: "Gaming CAGR", value: "-5%" },
+        { label: "Embedded recovery", value: "FY28+" },
+        { label: "Terminal growth", value: "2.0%" },
+      ],
+      narrative:
+        "Accelerator wins slip and embedded digestion persists, compressing growth and margins.",
+    },
+  },
+  transcriptInsights: amdTranscriptInsights,
+  theme: {
+    iconLetter: "A",
+    primaryColor: "#C53C2E",
+    accentColor: "#111827",
+    segmentColors: {
+      "data-center": "#C53C2E",
+      client: "#DD6B20",
+      gaming: "#9333EA",
+      embedded: "#2563EB",
+    },
+  },
+};
+
+

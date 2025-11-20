@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import {
   Table,
   TableBody,
@@ -6,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DCFModel } from "@/types";
+import { DCFModel, Segment } from "@/types";
 import { formatCurrency, formatPercent, formatNumber } from "@/lib/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
@@ -14,33 +15,40 @@ import { AnimatedNumber } from "@/components/ui/animated-number";
 
 interface Props {
   model: DCFModel;
+  segments: Segment[];
   wacc: number;
   terminalGrowth: number;
   onWaccChange: (val: number) => void;
   onTerminalGrowthChange: (val: number) => void;
 }
 
-export function DCFCalculator({ model, wacc, terminalGrowth, onWaccChange, onTerminalGrowthChange }: Props) {
-  const { projections, terminalValue, pvTerminalValue, enterpriseValue, equityValue, fairValuePerShare } = model;
+const getYoY = (values: number[]) =>
+  values.map((value, index) =>
+    index === 0 ? "—" : `${(((value - values[index - 1]) / values[index - 1]) * 100).toFixed(1)}%`
+  );
+
+export function DCFCalculator({ model, segments, wacc, terminalGrowth, onWaccChange, onTerminalGrowthChange }: Props) {
+  const { projections, pvTerminalValue, enterpriseValue, equityValue, fairValuePerShare } = model;
 
   const adjustWacc = (delta: number) => {
     onWaccChange(Math.round((wacc + delta) * 10000) / 10000);
   };
 
-  const getYoY = (values: number[]) =>
-    values.map((value, index) =>
-      index === 0 ? "—" : `${(((value - values[index - 1]) / values[index - 1]) * 100).toFixed(1)}%`
-    );
-
-  const productivityYoY = getYoY(projections.map((p) => p.productivity));
-  const cloudYoY = getYoY(projections.map((p) => p.intelligentCloud));
-  const pcYoY = getYoY(projections.map((p) => p.personalComputing));
-  const totalRevYoY = getYoY(projections.map((p) => p.totalRevenue));
-  const fcfYoY = getYoY(projections.map((p) => p.fcf));
-
   const adjustTerm = (delta: number) => {
     onTerminalGrowthChange(Math.round((terminalGrowth + delta) * 10000) / 10000);
   };
+
+  const segmentSeries = segments.map((segment) => {
+    const values = projections.map((p) => p.segmentRevenue[segment.id] ?? 0);
+    return {
+      segment,
+      values,
+      yoy: getYoY(values),
+    };
+  });
+
+  const totalRevYoY = getYoY(projections.map((p) => p.totalRevenue));
+  const fcfYoY = getYoY(projections.map((p) => p.fcf));
 
   return (
     <div className="glass-panel overflow-hidden">
@@ -97,59 +105,27 @@ export function DCFCalculator({ model, wacc, terminalGrowth, onWaccChange, onTer
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="hover:bg-secondary/10 border-border transition-colors">
-              <TableCell className="font-medium text-foreground/80 pl-6">Productivity</TableCell>
-              {projections.map((p) => (
-                <TableCell key={`prod-${p.year}`} className="text-right font-mono text-muted-foreground">
-                  <AnimatedNumber value={p.productivity} formatter={formatNumber} highlightColor="text-foreground" />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-secondary/5 text-xs text-muted-foreground">
-              <TableCell className="pl-6 italic">% YoY</TableCell>
-              {productivityYoY.map((val, idx) => (
-                <TableCell key={`prod-yoy-${idx}`} className="text-right">{val}</TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell colSpan={projections.length + 1} className="h-2 bg-transparent" />
-            </TableRow>
-
-            <TableRow className="hover:bg-secondary/10 border-border transition-colors">
-              <TableCell className="font-medium text-foreground/80 pl-6">Intelligent Cloud</TableCell>
-              {projections.map((p) => (
-                <TableCell key={`cloud-${p.year}`} className="text-right font-mono text-muted-foreground">
-                  <AnimatedNumber value={p.intelligentCloud} formatter={formatNumber} highlightColor="text-foreground" />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-secondary/5 text-xs text-muted-foreground">
-              <TableCell className="pl-6 italic">% YoY</TableCell>
-              {cloudYoY.map((val, idx) => (
-                <TableCell key={`cloud-yoy-${idx}`} className="text-right">{val}</TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell colSpan={projections.length + 1} className="h-2 bg-transparent" />
-            </TableRow>
-
-            <TableRow className="hover:bg-secondary/10 border-border transition-colors">
-              <TableCell className="font-medium text-foreground/80 pl-6">More Personal Computing</TableCell>
-              {projections.map((p) => (
-                <TableCell key={`pc-${p.year}`} className="text-right font-mono text-muted-foreground">
-                  <AnimatedNumber value={p.personalComputing} formatter={formatNumber} highlightColor="text-foreground" />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-secondary/5 text-xs text-muted-foreground">
-              <TableCell className="pl-6 italic">% YoY</TableCell>
-              {pcYoY.map((val, idx) => (
-                <TableCell key={`pc-yoy-${idx}`} className="text-right">{val}</TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell colSpan={projections.length + 1} className="h-2 bg-transparent" />
-            </TableRow>
+            {segmentSeries.map(({ segment, values, yoy }) => (
+              <Fragment key={segment.id}>
+                <TableRow className="hover:bg-secondary/10 border-border transition-colors">
+                  <TableCell className="font-medium text-foreground/80 pl-6">{segment.name}</TableCell>
+                  {values.map((value, idx) => (
+                    <TableCell key={`${segment.id}-${idx}`} className="text-right font-mono text-muted-foreground">
+                      <AnimatedNumber value={value} formatter={formatNumber} highlightColor="text-foreground" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+                <TableRow className="bg-secondary/5 text-xs text-muted-foreground">
+                  <TableCell className="pl-6 italic">% YoY</TableCell>
+                  {yoy.map((val, idx) => (
+                    <TableCell key={`${segment.id}-yoy-${idx}`} className="text-right">{val}</TableCell>
+                  ))}
+                </TableRow>
+                <TableRow>
+                  <TableCell colSpan={projections.length + 1} className="h-2 bg-transparent" />
+                </TableRow>
+              </Fragment>
+            ))}
 
             <TableRow className="hover:bg-secondary/10 border-border transition-colors">
               <TableCell className="font-medium text-foreground/80 pl-6">Total Revenue</TableCell>
@@ -168,10 +144,13 @@ export function DCFCalculator({ model, wacc, terminalGrowth, onWaccChange, onTer
             <TableRow>
               <TableCell colSpan={projections.length + 1} className="h-2 bg-transparent" />
             </TableRow>
+
             <TableRow className="hover:bg-secondary/10 border-border transition-colors">
               <TableCell className="font-medium text-foreground/80 pl-6">FCF Margin</TableCell>
               {projections.map((p) => (
-                <TableCell key={p.year} className="text-right font-mono text-muted-foreground">{formatPercent(p.fcfMargin)}</TableCell>
+                <TableCell key={`fcf-margin-${p.year}`} className="text-right font-mono text-muted-foreground">
+                  {formatPercent(p.fcfMargin)}
+                </TableCell>
               ))}
             </TableRow>
             <TableRow className="bg-primary/5 hover:bg-primary/10 border-border transition-colors">
@@ -191,16 +170,19 @@ export function DCFCalculator({ model, wacc, terminalGrowth, onWaccChange, onTer
             <TableRow>
               <TableCell colSpan={projections.length + 1} className="h-2 bg-transparent" />
             </TableRow>
+
             <TableRow className="hover:bg-secondary/10 border-border transition-colors">
               <TableCell className="font-medium text-foreground/80 text-xs pl-6">Discount Factor</TableCell>
               {projections.map((p) => (
-                <TableCell key={p.year} className="text-right font-mono text-muted-foreground text-xs">{p.discountFactor.toFixed(3)}</TableCell>
+                <TableCell key={`discount-${p.year}`} className="text-right font-mono text-muted-foreground text-xs">
+                  {p.discountFactor.toFixed(3)}
+                </TableCell>
               ))}
             </TableRow>
             <TableRow className="hover:bg-secondary/10 border-border transition-colors border-t-2 border-t-border">
               <TableCell className="font-bold text-foreground pl-6">Present Value</TableCell>
               {projections.map((p) => (
-                <TableCell key={p.year} className="text-right font-mono font-medium text-foreground">
+                <TableCell key={`pv-${p.year}`} className="text-right font-mono font-medium text-foreground">
                     <AnimatedNumber value={p.presentValue} formatter={formatNumber} highlightColor="text-foreground" />
                 </TableCell>
               ))}

@@ -39,6 +39,8 @@ type DriverHighlightPayload = {
 };
 
 type SummaryRequestPayload = {
+  companySymbol?: string;
+  companyName?: string;
   fairValue: number;
   currentPrice: number;
   enterpriseValue: number;
@@ -96,6 +98,8 @@ export async function POST(req: Request) {
     }
 
     const {
+      companySymbol,
+      companyName,
       fairValue,
       currentPrice,
       enterpriseValue,
@@ -104,6 +108,8 @@ export async function POST(req: Request) {
       segmentSnapshots = [],
       driverHighlights = [],
     } = payload;
+    const companyLabel = companyName ?? "This company";
+    const symbolLabel = companySymbol ?? "TICKER";
 
     const impliedUpside = currentPrice
       ? ((fairValue - currentPrice) / currentPrice) * 100
@@ -157,7 +163,7 @@ export async function POST(req: Request) {
             .join("\n")
         : "Driver detail unavailable.";
 
-    const prompt = `You are drafting a two-sentence DCF commentary for Microsoft (MSFT) that must feel bespoke to the provided drivers.
+    const prompt = `You are drafting a two-sentence DCF commentary for ${companyLabel} (${symbolLabel}) that must feel bespoke to the provided drivers.
 Fair value: $${fairValue.toFixed(2)} | Current price: $${currentPrice.toFixed(
       2
     )} | Implied upside: ${impliedUpside.toFixed(1)}%
@@ -174,9 +180,10 @@ Largest revenue contributors and transcripts:
 ${driverNarrative}
 
 Rules:
-1. Reference at least one Intelligent Cloud driver (e.g., Azure) and one Productivity or Personal Computing driver by name, tying their growth rates to the valuation.
+1. Reference at least two segments from the payload by name, tying their flexed growth rates to the valuation.
 2. Explicitly mention how the highlighted growth tweaks flow through to the DCF (fair value or upside).
-3. Keep it to two, at most three, tightly-written sentences in a professional sell-side tone.`;
+3. Keep it to two, at most three, tightly-written sentences in a professional sell-side tone.
+4. Do not use first-person language (avoid words like "our", "we", or "us"); narrate from a neutral analyst perspective.`;
 
     const response = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -221,6 +228,7 @@ Rules:
         const decoder = new TextDecoder();
         const encoder = new TextEncoder();
         let buffer = "";
+        let isClosed = false;
 
         const textFromEvent = (event: AnthropicStreamEvent) => {
           if (
@@ -235,12 +243,31 @@ Rules:
         const reader = response.body!.getReader();
         let pendingEvent: string | null = null;
 
+        const safeClose = () => {
+          if (isClosed) return;
+          isClosed = true;
+          controller.close();
+          reader.cancel().catch(() => {});
+        };
+
+        const safeError = (err: unknown) => {
+          if (isClosed) return;
+          isClosed = true;
+          controller.error(err);
+          reader.cancel().catch(() => {});
+        };
+
+        const safeEnqueue = (chunk: Uint8Array) => {
+          if (isClosed) return;
+          controller.enqueue(chunk);
+        };
+
         function push() {
           reader
             .read()
             .then(({ done, value }) => {
               if (done) {
-                controller.close();
+                safeClose();
                 return;
               }
 
@@ -263,38 +290,43 @@ Rules:
 
                   const payloadRaw = trimmed.slice(5).trim();
                   if (!payloadRaw || payloadRaw === "[DONE]") {
-                    controller.close();
+                    safeClose();
                     return;
                   }
 
                   const parsed = JSON.parse(payloadRaw) as AnthropicStreamEvent;
                   const eventType = pendingEvent ?? parsed.type;
-                  if (eventType === "message_stop" || parsed.type === "message_stop") {
-                    controller.close();
+                  if (
+                    eventType === "message_stop" ||
+                    parsed.type === "message_stop"
+                  ) {
+                    safeClose();
                     return;
                   }
 
                   if (eventType === "error") {
                     console.error("Anthropic stream error event:", parsed);
-                    controller.error(new Error("Anthropic stream error"));
+                    safeError(new Error("Anthropic stream error"));
                     return;
                   }
 
                   const text = textFromEvent(parsed);
                   if (text) {
-                    controller.enqueue(encoder.encode(text));
+                    safeEnqueue(encoder.encode(text));
                   }
 
                   pendingEvent = null;
                 } catch (err) {
                   console.error("Failed to parse Anthropic stream chunk", err);
+                  safeError(err);
+                  return;
                 }
               }
               push();
             })
             .catch((err) => {
               console.error("Anthropic streaming error:", err);
-              controller.error(err);
+              safeError(err);
             });
         }
 

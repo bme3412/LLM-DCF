@@ -1,15 +1,16 @@
 'use client';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { YearProjection } from '@/types';
+import { Segment, YearProjection } from '@/types';
 import { formatCurrency } from '@/lib/utils/formatters';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 
 interface Props {
   data: YearProjection[];
+  segments: Segment[];
 }
 
-export function RevenueProjections({ data }: Props) {
+export function RevenueProjections({ data, segments }: Props) {
   return (
     <div className="glass-panel p-6 h-full overflow-hidden flex flex-col">
       <div className="mb-6">
@@ -28,34 +29,22 @@ export function RevenueProjections({ data }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="hover:bg-secondary/10 border-border transition-colors">
-              <TableCell className="font-medium text-foreground/80 pl-6 sticky left-0 bg-background/95 backdrop-blur-sm z-10 border-r border-border/50">Productivity</TableCell>
-              {data.map((p) => (
-                <TableCell key={p.year} className="text-right font-mono text-muted-foreground">
-                    <AnimatedNumber value={p.productivity} formatter={(v) => formatCurrency(v).replace('$', '')} highlightColor="text-foreground" />
+            {segments.map((segment) => (
+              <TableRow key={segment.id} className="hover:bg-secondary/10 border-border transition-colors">
+                <TableCell className="font-medium text-foreground/80 pl-6 sticky left-0 bg-background/95 backdrop-blur-sm z-10 border-r border-border/50">
+                  {segment.name}
                 </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="hover:bg-secondary/10 border-border transition-colors">
-              <TableCell className="font-medium text-foreground/80 pl-6 sticky left-0 bg-background/95 backdrop-blur-sm z-10 border-r border-border/50">Intelligent Cloud</TableCell>
-              {data.map((p) => (
-                <TableCell key={p.year} className="text-right font-mono text-muted-foreground">
-                    <AnimatedNumber value={p.intelligentCloud} formatter={(v) => formatCurrency(v).replace('$', '')} highlightColor="text-foreground" />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="hover:bg-secondary/10 border-border transition-colors">
-              <TableCell className="font-medium text-foreground/80 pl-6 sticky left-0 bg-background/95 backdrop-blur-sm z-10 border-r border-border/50">More Personal Computing</TableCell>
-              {data.map((p) => (
-                <TableCell key={p.year} className="text-right font-mono text-muted-foreground">
-                    <AnimatedNumber value={p.personalComputing} formatter={(v) => formatCurrency(v).replace('$', '')} highlightColor="text-foreground" />
-                </TableCell>
-              ))}
-            </TableRow>
+                {data.map((p) => (
+                  <TableCell key={`${segment.id}-${p.year}`} className="text-right font-mono text-muted-foreground">
+                      <AnimatedNumber value={p.segmentRevenue[segment.id] ?? 0} formatter={(v) => formatCurrency(v).replace('$', '')} highlightColor="text-foreground" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
             <TableRow className="bg-primary/5 hover:bg-primary/10 border-border transition-colors font-bold">
               <TableCell className="font-bold text-primary pl-6 sticky left-0 bg-background/95 backdrop-blur-sm z-10 border-r border-border/50">Total Revenue</TableCell>
               {data.map((p) => (
-                <TableCell key={p.year} className="text-right font-mono font-bold text-primary">
+                <TableCell key={`total-${p.year}`} className="text-right font-mono font-bold text-primary">
                     <AnimatedNumber value={p.totalRevenue} formatter={(v) => formatCurrency(v).replace('$', '')} highlightColor="text-primary" />
                 </TableCell>
               ))}

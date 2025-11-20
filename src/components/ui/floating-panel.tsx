@@ -1,4 +1,4 @@
-`use client`;
+'use client';
 
 import { X } from "lucide-react";
 import {
@@ -9,8 +9,6 @@ import {
   useCallback,
 } from "react";
 import { createPortal } from "react-dom";
-
-import { cn } from "@/lib/utils";
 
 interface FloatingPanelProps {
   open: boolean;
@@ -27,14 +25,12 @@ export function FloatingPanel({
   children,
   width = 460,
 }: FloatingPanelProps) {
-  const [mounted, setMounted] = useState(false);
   const [{ x, y }, setPosition] = useState({ x: 40, y: 80 });
   const dragData = useRef<{ dragging: boolean; offsetX: number; offsetY: number }>(
     { dragging: false, offsetX: 0, offsetY: 0 }
   );
 
   useEffect(() => {
-    setMounted(true);
     const handleResize = () => {
       setPosition((pos) => ({
         x: Math.min(pos.x, window.innerWidth - width - 24),
@@ -45,12 +41,6 @@ export function FloatingPanel({
     return () => window.removeEventListener("resize", handleResize);
   }, [width]);
 
-  const stopDragging = useCallback(() => {
-    dragData.current.dragging = false;
-    window.removeEventListener("pointermove", onPointerMove);
-    window.removeEventListener("pointerup", stopDragging);
-  }, []);
-
   const onPointerMove = useCallback((event: PointerEvent) => {
     if (!dragData.current.dragging) return;
     setPosition({
@@ -59,6 +49,15 @@ export function FloatingPanel({
     });
   }, []);
 
+  const stopDragging = useCallback(() => {
+    dragData.current.dragging = false;
+    window.removeEventListener("pointermove", onPointerMove);
+  }, [onPointerMove]);
+
+  const handlePointerUp = useCallback(() => {
+    stopDragging();
+  }, [stopDragging]);
+
   const startDragging = (event: React.PointerEvent<HTMLDivElement>) => {
     dragData.current = {
       dragging: true,
@@ -66,17 +65,17 @@ export function FloatingPanel({
       offsetY: event.clientY - y,
     };
     window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", stopDragging);
+    window.addEventListener("pointerup", handlePointerUp, { once: true });
   };
 
   useEffect(() => {
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", stopDragging);
+      window.removeEventListener("pointerup", handlePointerUp);
     };
-  }, [onPointerMove, stopDragging]);
+  }, [onPointerMove, handlePointerUp]);
 
-  if (!mounted || !open) return null;
+  if (!open) return null;
 
   return createPortal(
     <div
@@ -102,5 +101,3 @@ export function FloatingPanel({
     document.body
   );
 }
-
-

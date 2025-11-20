@@ -1,4 +1,3 @@
-import { formatCurrency } from "@/lib/utils/formatters";
 import { cn } from "@/lib/utils";
 import { DCFModel } from "@/types";
 import { calculateFairValue } from "@/lib/utils/dcf-calculations";
@@ -18,8 +17,7 @@ export function SensitivityAnalysis({ model }: Props) {
   const waccSteps = [0.084, 0.089, 0.094, 0.099];
   const growthSteps = [0.030, 0.035, 0.040, 0.045];
 
-  const getCellColor = (value: number, baseValue: number) => {
-    const diff = (value - baseValue) / baseValue;
+  const getCellColor = (value: number) => {
     // > 10% undervalued = Green
     // < 10% overvalued = Red
     // +/- 10% = Fair (Yellow)
@@ -102,7 +100,7 @@ export function SensitivityAnalysis({ model }: Props) {
                         <div 
                             className={cn(
                                 "py-3 px-1 rounded border font-mono text-sm font-bold text-center transition-all hover:scale-105 cursor-default", 
-                                getCellColor(val, 0)
+                                getCellColor(val)
                             )} 
                             title={`Implied Share Price: $${val}`}
                         >
