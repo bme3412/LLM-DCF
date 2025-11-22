@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Microsoft DCF Analysis Dashboard",
+  title: "AI DCF Model Generator",
   description: "Interactive Discounted Cash Flow valuation model for MSFT",
 };
 
